@@ -1,15 +1,13 @@
 
 import "./App.css";
+import CustomSpecTablesPage from "./Custom Tables/CustomSpecPage";
 import './main.less';
-import { Button } from "antd";
 
 function App() {
 
   return (
     <>
-      <div className="App">
-        <Button className="my-button" type="primary">Button</Button>
-      </div>
+      <CustomSpecTablesPage />
     </>
   );
 }
