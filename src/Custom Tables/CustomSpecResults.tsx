@@ -5,7 +5,6 @@ import {
   Row,
   Typography,
   Button,
-  Empty,
   Form,
   Space,
   Popconfirm,
@@ -23,6 +22,7 @@ const { Text } = Typography;
 const CustomSpecResults = ({ specGroups, setSpecGroups }: ContainerProps) => {
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
+  const [isSaved, setIsSaved] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const cancelText =
@@ -83,6 +83,8 @@ const CustomSpecResults = ({ specGroups, setSpecGroups }: ContainerProps) => {
               <TransferTable
                 specGroups={specGroups}
                 setSpecGroups={setSpecGroups}
+                isSaved={isSaved}
+                setIsSaved={setIsSaved}
               />
             </Col>
           </Row>
@@ -104,7 +106,7 @@ const CustomSpecResults = ({ specGroups, setSpecGroups }: ContainerProps) => {
             >
               <Button>Cancel</Button>
             </Popconfirm>
-            <Button type="primary">Save Custom Spec Table</Button>
+            <Button onClick={() => setIsSaved(true)} type="primary">Save Custom Spec Table</Button>
           </Space>
         </Row>
       </Col>

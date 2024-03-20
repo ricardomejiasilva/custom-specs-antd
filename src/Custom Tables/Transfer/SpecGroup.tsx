@@ -3,7 +3,7 @@ import {
   useSortable,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Container, SpecGroupProps } from "./Types";
+import { SpecGroupProps } from "./Types";
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import SortableItem from "./SortableItem";
 import { Row, Space, Typography, Button, Image, Input, Popconfirm } from "antd";
@@ -59,24 +59,29 @@ const SpecGroup = ({
   const handleDelete = () => {
     const updatedSpecGroups = specGroups.filter((group) => group !== columnId);
 
-    // Update only the tasks within the deleted group to have columnId 'right'
-    const updatedTasks = allTasks.map((task) => {
-      if (task.columnId === columnId) {
-        return { ...task, columnId: "right" };
-      }
-      return task;
-    });
+    // Separate the tasks into those that are in the "right" container and those that are not
+    const rightContainerTasks = allTasks.filter(
+      (task) => task.columnId === "right"
+    );
+    const otherTasks = allTasks.filter(
+      (task) => task.columnId !== columnId && task.columnId !== "right"
+    );
+    const deletedGroupTasks = allTasks
+      .filter((task) => task.columnId === columnId)
+      .map((task) => ({ ...task, columnId: "right", hidden: false }));
+
+    // Append the tasks from the deleted group to the end of the "right" container tasks
+    const updatedTasks = [
+      ...otherTasks,
+      ...rightContainerTasks,
+      ...deletedGroupTasks,
+    ];
 
     // Update the state with the modified specGroups and tasks
     setIsEditing(false);
     setSpecGroups(updatedSpecGroups);
     setTasks(updatedTasks);
   };
-
-  useEffect(() => {
-    const rightTasks = allTasks.filter((task) => task.columnId === "right");
-    console.log(rightTasks, "tasks on right");
-  }, [allTasks, specGroups, droppedTasks]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEditedTitle(e.target.value);
@@ -155,6 +160,7 @@ const SpecGroup = ({
                   value={editedTitle}
                   onChange={handleInputChange}
                   onKeyDown={handleInputKeyDown}
+                  on
                   ref={inputRef}
                   className="spec-groups__title-input"
                 />
@@ -210,6 +216,7 @@ const SpecGroup = ({
                     task={task}
                     count={count}
                     isSaved={isSaved}
+                    isOnLeftSide={columnId === 'left'}
                   />
                 ) : null
               )}

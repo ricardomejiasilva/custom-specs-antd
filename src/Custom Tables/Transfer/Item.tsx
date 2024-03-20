@@ -9,26 +9,25 @@ export type ItemProps = HTMLAttributes<HTMLDivElement> & {
     selected: boolean | undefined;
     count: number;
     isSaved: boolean;
+    isOnLeftSide: boolean;
 };
 
 const Item = forwardRef<HTMLDivElement, ItemProps>(
     (
-        { withOpacity, onSelect, count, isSaved, selected, task, isDragging, style, ...props },
+        { withOpacity, onSelect, count, isSaved, selected, task, isDragging, isOnLeftSide, style, ...props },
         ref,
     ) => {
-        let borderColor: string;
+        let borderColor = '#d9d9d9'; // Default color for tasks on the left side
         if (isDragging || selected) {
-            borderColor = '#1890ff';
-        } else if (isSaved) {
-            borderColor = '#d4b106';
-        } else {
-            borderColor = '#d9d9d9';
+            borderColor = '#1890ff'; // Blue for dragging or selected tasks
+        } else if (!isOnLeftSide && !isSaved) {
+            borderColor = '#d4b106'; // Yellow for tasks not on the left side
         }
 
         const inlineStyles: CSSProperties = {
             transform: isDragging ? 'scale(1.05)' : 'scale(1)',
             borderColor: borderColor,
-            minWidth: isDragging && 508,
+            minWidth: isDragging ? 508 : '',
             ...style,
         };
 

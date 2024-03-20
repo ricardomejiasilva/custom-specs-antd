@@ -17,6 +17,7 @@ export type Container = {
   select: (columnId: string) => void;
   onSelect: (taskId: string) => void;
   handleSelect: (taskId: string) => void;
+  setIsRightContainerHovered?: (isHovered: boolean) => void;
 };
 
 export type SpecGroupProps = Container & {

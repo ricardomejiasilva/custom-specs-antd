@@ -15,7 +15,6 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Button, Space, Col, Row, Typography, Layout } from "antd";
-import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { Id, Task } from "./Types";
 import SpecGroup from "./SpecGroup";
 import Item from "./Item";
@@ -28,14 +27,21 @@ const { Text } = Typography;
 interface Props {
   specGroups: string[];
   setSpecGroups: (specGroups: string[]) => void;
+  isSaved: boolean;
+  setIsSaved: (isSaved: boolean) => void;
 }
 
-const TransferTable = ({ specGroups, setSpecGroups }: Props) => {
+const TransferTable = ({
+  specGroups,
+  setSpecGroups,
+  isSaved,
+  setIsSaved,
+}: Props) => {
   const [tasks, setTasks] = useState<Task[]>(defaultTaks);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isSaved, setIsSaved] = useState(true);
+  const [isRightContainerHovered, setIsRightContainerHovered] = useState(false);
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [isAllGroupsCollapsed, SetIsAllGroupsCollapsed] = useState(false);
   const [isTranferingRight, setIsTranferingRight] = useState<boolean>(false);
@@ -375,9 +381,8 @@ const TransferTable = ({ specGroups, setSpecGroups }: Props) => {
   }, [selectedContainer]);
 
   useEffect(() => {
-    const allLeft = tasks.every((task) => task.columnId === "left");
-    setIsSaved(allLeft);
-    console.log(isSaved, "isSaved");
+    const movedtask = tasks.some((task) => task.columnId !== "left");
+    setIsSaved(!movedtask);
   }, [tasks]);
 
   return (
@@ -457,7 +462,11 @@ const TransferTable = ({ specGroups, setSpecGroups }: Props) => {
                   : "Collapse All Spec Groups"}
               </Button>
             </Row>
-            <Row className="results-section__col-container">
+            <Row
+              className={`results-section__col-container right-container ${
+                isRightContainerHovered && isTranferingRight ? "select-container" : ""
+              }`}
+            >
               <Space direction="vertical" className="w-full">
                 {specGroups.map((group, index) => {
                   return (
@@ -494,6 +503,7 @@ const TransferTable = ({ specGroups, setSpecGroups }: Props) => {
                   count={selectedTasks.length}
                   select={select}
                   isSaved={isSaved}
+                  setIsRightContainerHovered={setIsRightContainerHovered}
                 />
               </Space>
             </Row>
@@ -508,6 +518,7 @@ const TransferTable = ({ specGroups, setSpecGroups }: Props) => {
                     count={selectedTasks.length}
                     isDragging
                     isSaved={isSaved}
+                    isOnLeftSide
                   />
                 </Row>
               ) : null}

@@ -16,6 +16,7 @@ import {
     handleSelect,
     selectedTasks,
     isTranferingRight,
+    setIsRightContainerHovered,
   }: Container) => {
     const { setNodeRef } = useSortable({
       id: columnId,
@@ -38,6 +39,8 @@ import {
             : "filter-container left-container"
         }
         onClick={() => select(columnId)}
+        onMouseEnter={() => setIsRightContainerHovered(true)}
+        onMouseLeave={() => setIsRightContainerHovered(false)}
       >
         <SortableContext strategy={rectSortingStrategy} items={tasksIds}>
           {tasks.map((task) =>
@@ -50,6 +53,7 @@ import {
                 task={task}
                 count={count}
                 isSaved={isSaved}  
+                isOnLeftSide={columnId === 'left'}
               />
             ) : null
           )}
