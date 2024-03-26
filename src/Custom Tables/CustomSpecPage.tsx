@@ -4,15 +4,19 @@ import { Col, Row, Typography } from "antd";
 import "../styles/custom-spec-tables.less";
 import "../styles/custom-spec-tables-group-item.less";
 import "../styles/custom-spec-table-transfer.less";
+import { SpecGroupType } from "./Transfer/Types";
 
 const { Title } = Typography;
 
 const CustomSpecTablesPage = () => {
-  const [specGroups, setSpecGroups] = useState<string[]>([
-    "Deimensions",
-    "Sizes",
-    "Categories",
+  const [specGroups, setSpecGroups] = useState<SpecGroupType[]>([
+    { name: "Dimension", isEdited: false },
+    { name: "Size", isEdited: false },
+    { name: "Width", isEdited: false },
   ]);
+
+  console.log(specGroups);
+  
 
   return (
     <>

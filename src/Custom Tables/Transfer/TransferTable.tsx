@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ColumnContainer from "./ColumnContainer";
 import {
   DndContext,
@@ -15,29 +15,31 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Button, Space, Col, Row, Typography, Layout } from "antd";
-import { Id, Task } from "./Types";
+import { Id, SpecGroupType, Task } from "./Types";
 import SpecGroup from "./SpecGroup";
 import Item from "./Item";
 import { createPortal } from "react-dom";
-import { defaultTaks } from "./TaskList";
 import "../../styles/custom-spec-table-transfer.less";
 
 const { Text } = Typography;
 
 interface Props {
-  specGroups: string[];
-  setSpecGroups: (specGroups: string[]) => void;
-  isSaved: boolean;
-  setIsSaved: (isSaved: boolean) => void;
+  specGroups: SpecGroupType[];
+  setSpecGroups: (specGroups: SpecGroupType[]) => void;
+  isTableEdited: boolean;
+  setIsTableEdited: (isTableEdited: boolean) => void;
+  tasks: Task[];
+  setTasks: (tasks: Task[]) => void;
 }
 
 const TransferTable = ({
   specGroups,
   setSpecGroups,
-  isSaved,
-  setIsSaved,
+  isTableEdited,
+  setIsTableEdited,
+  tasks,
+  setTasks,
 }: Props) => {
-  const [tasks, setTasks] = useState<Task[]>(defaultTaks);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -310,6 +312,44 @@ const TransferTable = ({
         }
       });
     }
+
+    if (isActiveATask && isOverAColumn) {
+      setTasks((currentTasks) => {
+        return currentTasks.map((task) => {
+          if (selectedTasks.includes(task.id.toString())) {
+            // Directly set 'edited' based on the column the task is being moved to
+            const isMovingToNonLeftColumn = useCol !== "left";
+            return {
+              ...task,
+              columnId: useCol,
+              edited: isMovingToNonLeftColumn,
+            };
+          }
+          return task;
+        });
+      });
+    }
+
+    if (isActiveATask && isOverATask) {
+      setTasks((currentTasks) => {
+        const targetColumn = currentTasks.find(
+          (task) => task.id === overId
+        )?.columnId;
+        const isTargetColumnNotLeft = targetColumn !== "left";
+
+        return currentTasks.map((task) => {
+          if (selectedTasks.includes(task.id.toString())) {
+            // Update 'edited' based on whether the target column is 'left' or not
+            return {
+              ...task,
+              // Assuming columnId update logic is handled correctly elsewhere in your code
+              edited: isTargetColumnNotLeft,
+            };
+          }
+          return task;
+        });
+      });
+    }
   }
 
   function onDragEnd(event: DragEndEvent) {
@@ -326,6 +366,18 @@ const TransferTable = ({
 
     const activeId = active.id;
     const overId = over.id;
+    const overType = over.data.current?.type;
+
+    if (overType === "Column" || overType === "Group") {
+      const newSpecGroups = specGroups.map((group) => {
+        if (group.name === overId) {
+          return { ...group, isEdited: true };
+        }
+        return group;
+      });
+
+      setSpecGroups(newSpecGroups);
+    }
 
     if (activeId === overId) return;
 
@@ -369,7 +421,7 @@ const TransferTable = ({
     if (selectedContainer) {
       const newTasks = tasks.map((task) => {
         if (selectedTasks.includes(task.id.toString())) {
-          return { ...task, columnId: selectedContainer };
+          return { ...task, columnId: selectedContainer, edited: true };
         }
         return task;
       });
@@ -379,11 +431,6 @@ const TransferTable = ({
       setSelectedContainer("");
     }
   }, [selectedContainer]);
-
-  useEffect(() => {
-    const movedtask = tasks.some((task) => task.columnId !== "left");
-    setIsSaved(!movedtask);
-  }, [tasks]);
 
   return (
     <Layout className="results-section">
@@ -423,6 +470,7 @@ const TransferTable = ({
                 handleSelect={handleSelect}
                 count={selectedTasks.length}
                 select={select}
+                setIsRightContainerHovered={setIsRightContainerHovered}
               />
             </Row>
           </Col>
@@ -464,7 +512,9 @@ const TransferTable = ({
             </Row>
             <Row
               className={`results-section__col-container right-container ${
-                isRightContainerHovered && isTranferingRight ? "select-container" : ""
+                isRightContainerHovered && isTranferingRight
+                  ? "select-container"
+                  : ""
               }`}
             >
               <Space direction="vertical" className="w-full">
@@ -472,9 +522,9 @@ const TransferTable = ({
                   return (
                     <SpecGroup
                       key={`specGroup-${index}`}
-                      columnId={group}
+                      columnId={group.name}
                       droppedTasks={tasks.filter(
-                        (task) => task.columnId === group
+                        (task) => task.columnId === group.name
                       )}
                       allTasks={tasks}
                       onSelect={onSelect}
@@ -488,7 +538,8 @@ const TransferTable = ({
                       setSpecGroups={setSpecGroups}
                       setTasks={setTasks}
                       updateTaskColumnIds={updateTaskColumnIds}
-                      isSaved={isSaved}
+                      isTableEdited={isTableEdited}
+                      setIsTableEdited={setIsTableEdited}
                     />
                   );
                 })}
@@ -502,7 +553,8 @@ const TransferTable = ({
                   handleSelect={handleSelect}
                   count={selectedTasks.length}
                   select={select}
-                  isSaved={isSaved}
+                  isTableEdited={isTableEdited}
+                  setIsTableEdited={setIsTableEdited}
                   setIsRightContainerHovered={setIsRightContainerHovered}
                 />
               </Space>
@@ -517,7 +569,7 @@ const TransferTable = ({
                     task={activeTask}
                     count={selectedTasks.length}
                     isDragging
-                    isSaved={isSaved}
+                    isTableEdited={isTableEdited}
                     isOnLeftSide
                   />
                 </Row>

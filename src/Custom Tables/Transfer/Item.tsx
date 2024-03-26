@@ -8,19 +8,19 @@ export type ItemProps = HTMLAttributes<HTMLDivElement> & {
     onSelect?: (event: React.MouseEvent<HTMLDivElement>) => void;
     selected: boolean | undefined;
     count: number;
-    isSaved: boolean;
+    isTableEdited: boolean;
     isOnLeftSide: boolean;
 };
 
 const Item = forwardRef<HTMLDivElement, ItemProps>(
     (
-        { withOpacity, onSelect, count, isSaved, selected, task, isDragging, isOnLeftSide, style, ...props },
+        { withOpacity, onSelect, count, isTableEdited, selected, task, isDragging, isOnLeftSide, style, ...props },
         ref,
     ) => {
         let borderColor = '#d9d9d9'; // Default color for tasks on the left side
         if (isDragging || selected) {
             borderColor = '#1890ff'; // Blue for dragging or selected tasks
-        } else if (!isOnLeftSide && !isSaved) {
+        } else if (task.edited) {
             borderColor = '#d4b106'; // Yellow for tasks not on the left side
         }
 

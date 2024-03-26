@@ -1,29 +1,22 @@
 import React, { useState } from "react";
-import {
-  Col,
-  Card,
-  Row,
-  Typography,
-  Button,
-  Form,
-  Space,
-  Popconfirm,
-} from "antd";
+import { Col, Card, Row, Button, Form, Space, Popconfirm } from "antd";
 import CustomSpecGroupModal from "./CustomSpecGroupModal";
 import TransferTable from "./Transfer/TransferTable";
+import { SpecGroupType, Task } from "./Transfer/Types";
+import { defaultTasks } from "./Transfer/TaskList";
 ("../styles/custom-spec-tables-results.less");
 
 interface ContainerProps {
-  specGroups: string[];
-  setSpecGroups: (specGroups: string[]) => void;
+  specGroups: SpecGroupType[];
+  setSpecGroups: (specGroups: SpecGroupType[]) => void;
 }
-const { Text } = Typography;
 
 const CustomSpecResults = ({ specGroups, setSpecGroups }: ContainerProps) => {
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
-  const [isSaved, setIsSaved] = useState(true);
+  const [isTableEdited, setIsTableEdited] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [tasks, setTasks] = useState<Task[]>(defaultTasks);
 
   const cancelText =
     "Are you sure you want to cancel your changes?\nYou will lose any changes that you have made.";
@@ -40,6 +33,23 @@ const CustomSpecResults = ({ specGroups, setSpecGroups }: ContainerProps) => {
       disabled: true,
     })),
   ];
+
+  const saveAllTasks = () => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => ({
+        ...task,
+        edited: false,
+      }))
+    );
+
+    setSpecGroups((prevSpecGroups) =>
+      prevSpecGroups.map((group) => ({
+        ...group,
+        isEdited: false,
+      }))
+    );
+    setIsTableEdited(false);
+  };
 
   return (
     <Row className="flex results-container" style={{ paddingTop: 24 }}>
@@ -83,8 +93,10 @@ const CustomSpecResults = ({ specGroups, setSpecGroups }: ContainerProps) => {
               <TransferTable
                 specGroups={specGroups}
                 setSpecGroups={setSpecGroups}
-                isSaved={isSaved}
-                setIsSaved={setIsSaved}
+                isTableEdited={isTableEdited}
+                tasks={tasks}
+                setTasks={setTasks}
+                setIsTableEdited={setIsTableEdited}
               />
             </Col>
           </Row>
@@ -106,7 +118,9 @@ const CustomSpecResults = ({ specGroups, setSpecGroups }: ContainerProps) => {
             >
               <Button>Cancel</Button>
             </Popconfirm>
-            <Button onClick={() => setIsSaved(true)} type="primary">Save Custom Spec Table</Button>
+            <Button onClick={saveAllTasks} type="primary">
+              Save Custom Spec Table
+            </Button>
           </Space>
         </Row>
       </Col>

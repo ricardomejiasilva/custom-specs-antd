@@ -4,14 +4,14 @@ import {
     rectSortingStrategy,
   } from "@dnd-kit/sortable";
   import { Container } from "./Types";
-  import React, { useMemo } from "react";
+  import { useMemo } from "react";
   import SortableItem from "./SortableItem";
   
   const ColumnContainer = ({
     tasks,
     count,
     select,
-    isSaved,
+    isTableEdited,
     columnId,
     handleSelect,
     selectedTasks,
@@ -27,7 +27,7 @@ import {
     });
   
     const tasksIds = useMemo(() => {
-      return tasks.map((task) => task.id);
+      return tasks?.map((task) => task.id);
     }, [tasks]);
   
     return (
@@ -43,7 +43,7 @@ import {
         onMouseLeave={() => setIsRightContainerHovered(false)}
       >
         <SortableContext strategy={rectSortingStrategy} items={tasksIds}>
-          {tasks.map((task) =>
+          {tasks?.map((task) =>
             !task.hidden ? (
               <SortableItem
                 onSelect={(e) => handleSelect(task.id.toString())}
@@ -52,7 +52,7 @@ import {
                 key={task.id}
                 task={task}
                 count={count}
-                isSaved={isSaved}  
+                isTableEdited={isTableEdited}  
                 isOnLeftSide={columnId === 'left'}
               />
             ) : null

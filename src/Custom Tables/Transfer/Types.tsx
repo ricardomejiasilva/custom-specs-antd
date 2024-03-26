@@ -5,27 +5,34 @@ export type Task = {
   columnId: Id;
   content: string;
   hidden?: boolean;
+  edited: boolean;
 };
 
 export type Container = {
   tasks?: Task[];
   count: number;
   columnId: string;
-  isSaved?: boolean;
+  isTableEdited?: boolean;
   selectedTasks: string[];
   isTranferingRight: boolean;
   select: (columnId: string) => void;
   onSelect: (taskId: string) => void;
   handleSelect: (taskId: string) => void;
   setIsRightContainerHovered?: (isHovered: boolean) => void;
+  setIsTableEdited?: (isTableEdited: boolean) => void;
 };
 
 export type SpecGroupProps = Container & {
   isAllGroupsCollapsed?: boolean;
-  setSpecGroups?: (specGroups: string[]) => void;
-  specGroups?: string[];
+  setSpecGroups?: (specGroups: SpecGroupType[]) => void;
+  specGroups?: SpecGroupType[];
   setTasks?: (tasks: Task[]) => void;
   updateTaskColumnIds?: (oldColumnId: string, newColumnId: string) => void;
   allTasks?: Task[];
   droppedTasks?: Task[];
+};
+
+export type SpecGroupType = {
+  name: string;
+  isEdited: boolean;
 };
