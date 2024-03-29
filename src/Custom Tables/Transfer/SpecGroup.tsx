@@ -26,7 +26,6 @@ const SpecGroup = ({
   setSpecGroups,
   isTranferingRight,
   isAllGroupsCollapsed,
-  updateTaskColumnIds,
 }: SpecGroupProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -39,8 +38,6 @@ const SpecGroup = ({
     [specGroups, columnId]
   );
   const [isEdited, setIsEdited] = useState(currentSpecGroup.isEdited);
-
-  console.log(droppedTasks);
 
   const inputRef = useRef<Input>(null);
   const { setNodeRef } = useSortable({

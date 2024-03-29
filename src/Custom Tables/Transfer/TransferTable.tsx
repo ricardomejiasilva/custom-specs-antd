@@ -85,6 +85,19 @@ const TransferTable = ({
       setSelectedContainer(columnId);
       setIsTranferingRight(false);
 
+      // Update tasks to mark them as edited when they are moved to a container that is not 'left'
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => {
+          if (selectedTasks.includes(task.id.toString())) {
+            // If the container is not 'left', mark the task as edited
+            const isEdited = columnId !== "left";
+            return { ...task, columnId, edited: isEdited };
+          }
+          return task;
+        })
+      );
+
+      // Update specGroups to mark the group as edited if tasks are being moved to it
       setSpecGroups((prevSpecGroups) =>
         prevSpecGroups.map((group) =>
           group.name === columnId ? { ...group, isEdited: true } : group
