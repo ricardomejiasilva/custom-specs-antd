@@ -15,7 +15,7 @@ export type Container = {
   isTableEdited?: boolean;
   selectedTasks: string[];
   isTranferingRight: boolean;
-  select: (columnId: string) => void;
+  selectRightContainer: (columnId: string) => void;
   onSelect: (taskId: string) => void;
   handleSelect: (taskId: string) => void;
   setIsRightContainerHovered?: (isHovered: boolean) => void;

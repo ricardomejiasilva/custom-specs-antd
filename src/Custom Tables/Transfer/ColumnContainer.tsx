@@ -10,7 +10,7 @@ import {
   const ColumnContainer = ({
     tasks,
     count,
-    select,
+    selectRightContainer,
     isTableEdited,
     columnId,
     handleSelect,
@@ -38,7 +38,7 @@ import {
             ? "filter-container select-container right-container"
             : "filter-container left-container"
         }
-        onClick={() => select(columnId)}
+        onClick={() => selectRightContainer(columnId)}
         onMouseEnter={() => setIsRightContainerHovered(true)}
         onMouseLeave={() => setIsRightContainerHovered(false)}
       >

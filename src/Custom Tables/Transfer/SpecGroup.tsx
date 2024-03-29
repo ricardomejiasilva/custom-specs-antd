@@ -15,7 +15,7 @@ const SpecGroup = ({
   allTasks,
   droppedTasks,
   count,
-  select,
+  selectRightContainer,
   columnId,
   isTableEdited,
   setIsTableEdited,
@@ -66,7 +66,6 @@ const SpecGroup = ({
     setIsCollapsed(isAllGroupsCollapsed);
   }, [isAllGroupsCollapsed]);
 
-
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
@@ -98,15 +97,17 @@ const SpecGroup = ({
         editedTitle.trim() !== "" ? editedTitle.trim() : columnId;
 
       setIsEditing(false);
-      setEditedTitle(newTitle);
 
       if (newTitle !== columnId) {
         updateColumnIdAndTitle(columnId, newTitle);
+        setIsEdited(true);
+        setIsTableEdited(true);
+      } else {
+        setEditedTitle(columnId);
       }
-      setIsEdited(true);
-      setIsTableEdited(true);
     } else if (e.key === "Escape") {
       setIsEditing(false);
+      setEditedTitle(columnId);
     }
   };
 
@@ -114,14 +115,17 @@ const SpecGroup = ({
     setTimeout(() => {
       if (!deleteInitiated) {
         setIsEditing(false);
+
         const newTitle =
           editedTitle.trim() !== "" ? editedTitle.trim() : columnId;
-        setEditedTitle(newTitle);
+
         if (newTitle !== columnId) {
           updateColumnIdAndTitle(columnId, newTitle);
+          setIsEdited(true);
+          setIsTableEdited(true);
+        } else {
+          setEditedTitle(columnId);
         }
-        setIsEdited(true);
-        setIsTableEdited(true);
       }
       setDeleteInitiated(false);
     }, 100);
@@ -178,17 +182,20 @@ const SpecGroup = ({
     setIsTableEdited(true);
   };
 
+  let className = "spec-groups";
+
+  if (isEdited) {
+    className += " spec-group-draft";
+  }
+  if (isTranferingRight) {
+    className += " spec-group-hover select-container";
+  }
+
   return (
     <div
       ref={setNodeRef}
-      className={
-        isEdited
-          ? "spec-groups spec-group-draft"
-          : isTranferingRight
-          ? "spec-groups spec-group-hover select-container"
-          : "spec-groups"
-      }
-      onClick={() => select(columnId)}
+      className={className}
+      onClick={() => selectRightContainer(columnId)}
     >
       <Space style={{ rowGap: 0 }} direction="vertical" className="w-full">
         <Row justify="space-between" className="spec-groups__title-container">

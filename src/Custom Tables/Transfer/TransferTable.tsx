@@ -80,10 +80,16 @@ const TransferTable = ({
     });
   };
 
-  const select = (columnId: string) => {
+  const selectRightContainer = (columnId: string) => {
     if (isTranferingRight) {
       setSelectedContainer(columnId);
       setIsTranferingRight(false);
+
+      setSpecGroups((prevSpecGroups) =>
+        prevSpecGroups.map((group) =>
+          group.name === columnId ? { ...group, isEdited: true } : group
+        )
+      );
     }
   };
 
@@ -364,6 +370,27 @@ const TransferTable = ({
       prevTasks.map((task) => ({ ...task, hidden: false }))
     );
 
+    // Initialize a set to keep track of spec groups that need to be updated as edited
+    const editedSpecGroups = new Set<string>();
+
+    // Iterate through tasks to check for any edited tasks
+    tasks.forEach((task) => {
+      if (task.edited) {
+        editedSpecGroups.add(task.columnId);
+      }
+    });
+
+    // If there are any edited spec groups, update the corresponding specGroups' isEdited property
+    if (editedSpecGroups.size > 0) {
+      setSpecGroups((prevSpecGroups) =>
+        prevSpecGroups.map((group) =>
+          editedSpecGroups.has(group.name)
+            ? { ...group, isEdited: true }
+            : group
+        )
+      );
+    }
+
     const activeId = active.id;
     const overId = over.id;
     const overType = over.data.current?.type;
@@ -469,7 +496,7 @@ const TransferTable = ({
                 selectedTasks={selectedTasks}
                 handleSelect={handleSelect}
                 count={selectedTasks.length}
-                select={select}
+                selectRightContainer={selectRightContainer}
                 setIsRightContainerHovered={setIsRightContainerHovered}
               />
             </Row>
@@ -532,7 +559,7 @@ const TransferTable = ({
                       selectedTasks={selectedTasks}
                       handleSelect={handleSelect}
                       count={selectedTasks.length}
-                      select={select}
+                      selectRightContainer={selectRightContainer}
                       isAllGroupsCollapsed={isAllGroupsCollapsed}
                       specGroups={specGroups}
                       setSpecGroups={setSpecGroups}
@@ -552,7 +579,7 @@ const TransferTable = ({
                   selectedTasks={selectedTasks}
                   handleSelect={handleSelect}
                   count={selectedTasks.length}
-                  select={select}
+                  selectRightContainer={selectRightContainer}
                   isTableEdited={isTableEdited}
                   setIsTableEdited={setIsTableEdited}
                   setIsRightContainerHovered={setIsRightContainerHovered}
