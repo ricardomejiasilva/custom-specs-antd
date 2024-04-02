@@ -214,7 +214,7 @@ const TransferTable = ({
         }
 
         if (activeTaskIndex === 0) {
-          newIndex--;
+          newIndex++;
         }
 
         if (
