@@ -136,7 +136,21 @@ const TransferTable = ({
       const firstSelectedIndex = tasks.findIndex((task) =>
         selectedTasks.includes(task.id.toString())
       );
-      yOffset = (taskIndex - firstSelectedIndex) * 42; // Example task height, adjust accordingly
+      if (selectedTasks.length <= 1) {
+        yOffset = (taskIndex - firstSelectedIndex) * 42; // Example task height, adjust accordingly
+      }
+      if (selectedTasks.length > 1) {
+        if (
+          taskIndex > Number(selectedTasks[0]) ||
+          taskIndex === Number(selectedTasks[0])
+        ) {
+          const sortedTasks = selectedTasks.map(Number).sort((a, b) => a - b);
+          const draggingIndex = sortedTasks.indexOf(Number(taskId));
+          if (taskId <= 14) {
+            yOffset = draggingIndex * 48;
+          }
+        }
+      }
     }
 
     setDragOffset({ x: 0, y: yOffset });
