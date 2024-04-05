@@ -1,22 +1,26 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Col, Card, Row, Button, Form, Space, Popconfirm } from "antd";
 import CustomSpecGroupModal from "./CustomSpecGroupModal";
 import TransferTable from "./Transfer/TransferTable";
 import { SpecGroupType, Task } from "./Transfer/Types";
-import { defaultTasks } from "./Transfer/TaskList";
 ("../styles/custom-spec-tables-results.less");
 
 interface ContainerProps {
   specGroups: SpecGroupType[];
-  setSpecGroups: (specGroups: SpecGroupType[]) => void;
+  setSpecGroups: React.Dispatch<React.SetStateAction<SpecGroupType[]>>;
+  tasks: Task[];
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 
-const CustomSpecResults = ({ specGroups, setSpecGroups }: ContainerProps) => {
+const CustomSpecResults = ({
+  specGroups,
+  setSpecGroups,
+  tasks,
+  setTasks,
+}: ContainerProps) => {
   const [form] = Form.useForm();
-  const [data, setData] = useState([]);
   const [isTableEdited, setIsTableEdited] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [tasks, setTasks] = useState<Task[]>(defaultTasks);
 
   const cancelText =
     "Are you sure you want to cancel your changes?\nYou will lose any changes that you have made.";
@@ -24,15 +28,6 @@ const CustomSpecResults = ({ specGroups, setSpecGroups }: ContainerProps) => {
   const showModal = () => {
     setIsModalOpen(true);
   };
-
-  const dataSource = [
-    ...data,
-    ...specGroups.map((specGroup) => ({
-      key: specGroup,
-      title: specGroup,
-      disabled: true,
-    })),
-  ];
 
   const saveAllTasks = () => {
     setTasks((prevTasks) =>

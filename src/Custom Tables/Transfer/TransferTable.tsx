@@ -25,11 +25,11 @@ const { Text } = Typography;
 
 interface Props {
   specGroups: SpecGroupType[];
-  setSpecGroups: (specGroups: SpecGroupType[]) => void;
+  setSpecGroups: (specGroup: SpecGroupType[] | ((prevSpecGroups: SpecGroupType[]) => SpecGroupType[])) => void;
   isTableEdited: boolean;
   setIsTableEdited: (isTableEdited: boolean) => void;
   tasks: Task[];
-  setTasks: (tasks: Task[]) => void;
+  setTasks: (tasks: Task[] | ((prevTask: Task[]) => Task[])) => void;
 }
 
 const TransferTable = ({
@@ -146,7 +146,7 @@ const TransferTable = ({
         ) {
           const sortedTasks = selectedTasks.map(Number).sort((a, b) => a - b);
           const draggingIndex = sortedTasks.indexOf(Number(taskId));
-          if (taskId <= 14) {
+          if (Number(taskId) <= 14) {
             yOffset = draggingIndex * 48;
           }
         }
@@ -225,7 +225,8 @@ const TransferTable = ({
           event.active.data?.current?.task?.columnId !==
           event.over?.data?.current?.task?.columnId
         ) {
-          const specOrder = ["left", "Dimension", "Size", "Width", "right"];
+          const specGroupTitles = specGroups.map((group) => group.name);
+          const specOrder = ["left", ...specGroupTitles, "right"];
           const activeSpecColIndex = specOrder.indexOf(
             event.active.data?.current?.task?.columnId
           );
@@ -368,7 +369,7 @@ const TransferTable = ({
     // Iterate through tasks to check for any edited tasks
     tasks.forEach((task) => {
       if (task.edited) {
-        editedSpecGroups.add(task.columnId);
+        editedSpecGroups.add(task.columnId.toString());
       }
     });
 
@@ -451,6 +452,14 @@ const TransferTable = ({
     }
   }, [selectedContainer]);
 
+  let rightContainerClass = "w-full";
+  if (isTranferingRight) {
+    rightContainerClass = "border-width";
+  }
+  if (isRightContainerHovered && isTranferingRight) {
+    rightContainerClass = "select-container border-width";
+  }
+
   return (
     <Layout className="results-section">
       <Row className="results-section__container">
@@ -470,7 +479,7 @@ const TransferTable = ({
               <Space>
                 <Text strong>Category Filter</Text>
                 <Text className="results-section__pipe">|</Text>
-                <Text>{19} Filter</Text>
+                <Text>{tasks.length} Filter</Text>
               </Space>
               <Space>
                 <Button onClick={selectAll} type="link">
@@ -509,13 +518,17 @@ const TransferTable = ({
             className={
               isTranferingRight
                 ? "results-section__right-col select-area"
-                : "results-section__right-col"
+                : "results-section__right-col border"
             }
           >
             <Row
               align="middle"
               justify="space-between"
-              className="results-section__col-header"
+              className={
+                isTranferingRight
+                  ? "results-section__col-header border-width"
+                  : "results-section__col-header w-full"
+              }
             >
               <Text strong>Custom Spec Table Order</Text>
               <Button
@@ -530,11 +543,9 @@ const TransferTable = ({
               </Button>
             </Row>
             <Row
-              className={`results-section__col-container right-container ${
-                isRightContainerHovered && isTranferingRight
-                  ? "select-container"
-                  : ""
-              }`}
+              className={
+                "results-section__col-container " + rightContainerClass
+              }
             >
               <Space direction="vertical" className="w-full">
                 {specGroups.map((group, index) => {

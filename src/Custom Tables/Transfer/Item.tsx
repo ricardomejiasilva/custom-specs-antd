@@ -44,7 +44,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                     alt='Draggable Icon'
                     width={16}
                 />
-                {task.content}
+                {task.productFilterName}
                 {isDragging && count > 1 && (
                     <div className='filter-item__count'>
                         <p>{count}</p>
