@@ -136,7 +136,21 @@ const TransferTable = ({
       const firstSelectedIndex = tasks.findIndex((task) =>
         selectedTasks.includes(task.id.toString())
       );
-      yOffset = (taskIndex - firstSelectedIndex) * 42; // Example task height, adjust accordingly
+      if (selectedTasks.length <= 1) {
+        yOffset = (taskIndex - firstSelectedIndex) * 42; // Example task height, adjust accordingly
+      }
+      if (selectedTasks.length > 1) {
+        if (
+          taskIndex > Number(selectedTasks[0]) ||
+          taskIndex === Number(selectedTasks[0])
+        ) {
+          const sortedTasks = selectedTasks.map(Number).sort((a, b) => a - b);
+          const draggingIndex = sortedTasks.indexOf(Number(taskId));
+          if (Number(taskId) <= 14) {
+            yOffset = draggingIndex * 48;
+          }
+        }
+      }
     }
 
     setDragOffset({ x: 0, y: yOffset });
@@ -211,7 +225,9 @@ const TransferTable = ({
           event.active.data?.current?.task?.columnId !==
           event.over?.data?.current?.task?.columnId
         ) {
-          const specOrder = ["left", "Dimension", "Size", "Width", "right"];
+          const specGroupTitles = specGroups.map((group) => group.name);
+          const specOrder = ["left", ...specGroupTitles, "right"];
+
           const activeSpecColIndex = specOrder.indexOf(
             event.active.data?.current?.task?.columnId
           );
@@ -437,6 +453,14 @@ const TransferTable = ({
     }
   }, [selectedContainer]);
 
+  let rightContainerClass = "w-full";
+  if (isTranferingRight) {
+    rightContainerClass = "border-width";
+  }
+  if (isRightContainerHovered && isTranferingRight) {
+    rightContainerClass = "select-container border-width";
+  }
+
   return (
     <Layout className="results-section">
       <Row className="results-section__container">
@@ -456,7 +480,7 @@ const TransferTable = ({
               <Space>
                 <Text strong>Category Filter</Text>
                 <Text className="results-section__pipe">|</Text>
-                <Text>{19} Filter</Text>
+                <Text>{tasks.length} Filter</Text>
               </Space>
               <Space>
                 <Button onClick={selectAll} type="link">
@@ -495,13 +519,17 @@ const TransferTable = ({
             className={
               isTranferingRight
                 ? "results-section__right-col select-area"
-                : "results-section__right-col"
+                : "results-section__right-col border"
             }
           >
             <Row
               align="middle"
               justify="space-between"
-              className="results-section__col-header"
+              className={
+                isTranferingRight
+                  ? "results-section__col-header border-width"
+                  : "results-section__col-header w-full"
+              }
             >
               <Text strong>Custom Spec Table Order</Text>
               <Button
@@ -516,11 +544,9 @@ const TransferTable = ({
               </Button>
             </Row>
             <Row
-              className={`results-section__col-container right-container ${
-                isRightContainerHovered && isTranferingRight
-                  ? "select-container"
-                  : ""
-              }`}
+              className={
+                "results-section__col-container " + rightContainerClass
+              }
             >
               <Space direction="vertical" className="w-full">
                 {specGroups.map((group, index) => {

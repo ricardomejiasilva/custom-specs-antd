@@ -35,7 +35,7 @@ import {
         ref={setNodeRef}
         className={
           isTranferingRight && columnId !== "left"
-            ? "filter-container select-container right-container"
+            ? "filter-container select-container border-width"
             : "filter-container left-container"
         }
         onClick={() => selectRightContainer(columnId)}

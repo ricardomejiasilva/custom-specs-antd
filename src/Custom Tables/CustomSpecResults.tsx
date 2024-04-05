@@ -9,14 +9,14 @@ import { defaultTasks } from "./Transfer/TaskList";
 interface ContainerProps {
   specGroups: SpecGroupType[];
   setSpecGroups: (specGroups: SpecGroupType[]) => void;
+  tasks: Task[];
+  setTasks: (tasks: Task[]) => void;
 }
 
-const CustomSpecResults = ({ specGroups, setSpecGroups }: ContainerProps) => {
+const CustomSpecResults = ({ specGroups, setSpecGroups, tasks, setTasks }: ContainerProps) => {
   const [form] = Form.useForm();
-  const [data, setData] = useState([]);
   const [isTableEdited, setIsTableEdited] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [tasks, setTasks] = useState<Task[]>(defaultTasks);
 
   const cancelText =
     "Are you sure you want to cancel your changes?\nYou will lose any changes that you have made.";
@@ -24,15 +24,6 @@ const CustomSpecResults = ({ specGroups, setSpecGroups }: ContainerProps) => {
   const showModal = () => {
     setIsModalOpen(true);
   };
-
-  const dataSource = [
-    ...data,
-    ...specGroups.map((specGroup) => ({
-      key: specGroup,
-      title: specGroup,
-      disabled: true,
-    })),
-  ];
 
   const saveAllTasks = () => {
     setTasks((prevTasks) =>

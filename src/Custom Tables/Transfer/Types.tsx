@@ -1,13 +1,3 @@
-export type Id = string | number;
-
-export type Task = {
-  id: Id;
-  columnId: Id;
-  content: string;
-  hidden?: boolean;
-  edited: boolean;
-};
-
 export type Container = {
   tasks?: Task[];
   count: number;
@@ -22,6 +12,8 @@ export type Container = {
   setIsTableEdited?: (isTableEdited: boolean) => void;
 };
 
+export type Id = string | number;
+
 export type SpecGroupProps = Container & {
   isAllGroupsCollapsed?: boolean;
   setSpecGroups?: (specGroups: SpecGroupType[]) => void;
@@ -35,4 +27,18 @@ export type SpecGroupProps = Container & {
 export type SpecGroupType = {
   name: string;
   isEdited: boolean;
+};
+
+export type Task = {
+  id: Id;
+  categoryId: number;
+  columnId: Id;
+  content: string;
+  customSpecificationGroupId: number;
+  customSpecificationGroupName: string;
+  edited: boolean;
+  hidden?: boolean;
+  productFilterId: number;
+  productFilterName: string;
+  sortOrder: number;
 };
