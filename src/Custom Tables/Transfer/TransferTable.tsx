@@ -136,7 +136,21 @@ const TransferTable = ({
       const firstSelectedIndex = tasks.findIndex((task) =>
         selectedTasks.includes(task.id.toString())
       );
-      yOffset = (taskIndex - firstSelectedIndex) * 42; // Example task height, adjust accordingly
+      if (selectedTasks.length <= 1) {
+        yOffset = (taskIndex - firstSelectedIndex) * 42; // Example task height, adjust accordingly
+      }
+      if (selectedTasks.length > 1) {
+        if (
+          taskIndex > Number(selectedTasks[0]) ||
+          taskIndex === Number(selectedTasks[0])
+        ) {
+          const sortedTasks = selectedTasks.map(Number).sort((a, b) => a - b);
+          const draggingIndex = sortedTasks.indexOf(Number(taskId));
+          if (taskId <= 14) {
+            yOffset = draggingIndex * 48;
+          }
+        }
+      }
     }
 
     setDragOffset({ x: 0, y: yOffset });
@@ -202,59 +216,33 @@ const TransferTable = ({
         const overTaskIndex = tasks.findIndex((t) => t.id === overId);
         const activeTaskIndex = tasks.findIndex((t) => t.id === activeId);
 
-        if (newIndex === -1) {
-          // If overId not found in the list, calculate the index based on position
-          newIndex = tasks.findIndex((t) => t.id === overId);
-        } else {
-          // If overId found, check if dragging below it, then increment newIndex
-          if (activeTaskIndex > overTaskIndex) {
-            // If dragging the task downwards, decrement newIndex
-            newIndex--;
-          }
-        }
-
-        if (activeTaskIndex === 0) {
-          newIndex++;
+        if (activeTaskIndex > overTaskIndex) {
+          // If dragging the task downwards, decrement newIndex
+          newIndex--;
         }
 
         if (
           event.active.data?.current?.task?.columnId !==
           event.over?.data?.current?.task?.columnId
         ) {
-          // Extract the numeric part from the columnId
-          const extractNumber = (columnId: string) => {
-            return parseInt(columnId.split("-")[1]);
-          };
-
-          // Get the numeric values of active and over columnIds
-          const activeColumnIdNumber = extractNumber(
+          const specOrder = ["left", "Dimension", "Size", "Width", "right"];
+          const activeSpecColIndex = specOrder.indexOf(
             event.active.data?.current?.task?.columnId
           );
-          const overColumnIdNumber = extractNumber(
+          const overSpecColIndex = specOrder.indexOf(
             event.over?.data?.current?.task?.columnId
           );
 
-          // Perform the comparison and adjust newIndex accordingly
-          if (activeColumnIdNumber < overColumnIdNumber) {
-            newIndex--;
-          }
-
-          if (activeColumnIdNumber > overColumnIdNumber) {
+          if (activeSpecColIndex > overSpecColIndex) {
             newIndex++;
           }
 
-          if (
-            event.active.data?.current?.task?.columnId === "right" &&
-            event.over?.data?.current?.task?.columnId !== "right"
-          ) {
-            newIndex++;
+          if (activeSpecColIndex < overSpecColIndex) {
+            newIndex--;
           }
 
-          if (
-            event.active.data?.current?.task?.columnId !== "right" &&
-            event.over?.data?.current?.task?.columnId === "right"
-          ) {
-            newIndex--;
+          if (newIndex === -2) {
+            newIndex++;
           }
 
           if (
@@ -262,16 +250,7 @@ const TransferTable = ({
             event.over?.data?.current?.task?.columnId === "left"
           ) {
             if (initialIndex !== newIndex + 1) {
-              newIndex--;
-            }
-          }
-
-          if (
-            event.active.data?.current?.task?.columnId === "left" &&
-            event.over?.data?.current?.task?.columnId !== "left"
-          ) {
-            if (initialIndex !== newIndex + 1) {
-              newIndex--;
+              newIndex = initialIndex - 1;
             }
           }
         }
