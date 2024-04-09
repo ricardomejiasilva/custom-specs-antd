@@ -25,7 +25,11 @@ const { Text } = Typography;
 
 interface Props {
   specGroups: SpecGroupType[];
-  setSpecGroups: (specGroup: SpecGroupType[] | ((prevSpecGroups: SpecGroupType[]) => SpecGroupType[])) => void;
+  setSpecGroups: (
+    specGroup:
+      | SpecGroupType[]
+      | ((prevSpecGroups: SpecGroupType[]) => SpecGroupType[])
+  ) => void;
   isTableEdited: boolean;
   setIsTableEdited: (isTableEdited: boolean) => void;
   tasks: Task[];
@@ -48,7 +52,20 @@ const TransferTable = ({
   const [isAllGroupsCollapsed, SetIsAllGroupsCollapsed] = useState(false);
   const [isTranferingRight, setIsTranferingRight] = useState<boolean>(false);
   const [selectedContainer, setSelectedContainer] = useState<string>("");
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [mousePos, setMousePost] = useState({ x: 0, y: 0 });
+
+  const updateDragOffset = (e) => {
+    setMousePost({ x: e.clientX, y: e.clientY });
+  };
+  // Add mousemove event listener when component mounts
+  useEffect(() => {
+    document.addEventListener("mousemove", updateDragOffset);
+
+    // Remove mousemove event listener when component unmounts
+    return () => {
+      document.removeEventListener("mousemove", updateDragOffset);
+    };
+  }, []);
 
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -129,31 +146,6 @@ const TransferTable = ({
 
     // Determine if the task is already selected
     const isTaskSelected = selectedTasks.includes(taskId);
-
-    // Calculate yOffset only if the task is already selected
-    let yOffset = 0;
-    if (isTaskSelected) {
-      const firstSelectedIndex = tasks.findIndex((task) =>
-        selectedTasks.includes(task.id.toString())
-      );
-      if (selectedTasks.length <= 1) {
-        yOffset = (taskIndex - firstSelectedIndex) * 42; // Example task height, adjust accordingly
-      }
-      if (selectedTasks.length > 1) {
-        if (
-          taskIndex > Number(selectedTasks[0]) ||
-          taskIndex === Number(selectedTasks[0])
-        ) {
-          const sortedTasks = selectedTasks.map(Number).sort((a, b) => a - b);
-          const draggingIndex = sortedTasks.indexOf(Number(taskId));
-          if (Number(taskId) <= 14) {
-            yOffset = draggingIndex * 48;
-          }
-        }
-      }
-    }
-
-    setDragOffset({ x: 0, y: yOffset });
 
     // Select the task if it's not already selected
     if (!isTaskSelected) {
@@ -591,9 +583,15 @@ const TransferTable = ({
             </Row>
           </Col>
           {createPortal(
-            <DragOverlay>
+            <DragOverlay
+              style={{
+                transform: `translate(${mousePos.x}px, ${mousePos.y}px)`,
+                top: 0,
+                left: 0,
+              }}
+            >
               {activeTask ? (
-                <Row style={{ transform: `translateY(${dragOffset.y}px)` }}>
+                <Row>
                   <Item
                     selected={selectedTasks.includes(activeTask.id.toString())}
                     task={activeTask}
